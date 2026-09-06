@@ -1,6 +1,9 @@
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
+import logging
+
+logger = logging.getLogger("unigigs.config")
 
 
 class Settings(BaseSettings):
@@ -17,6 +20,9 @@ class Settings(BaseSettings):
     @field_validator("DATABASE_URL", mode="before")
     def fix_postgres_scheme(cls, v: str) -> str:
         if isinstance(v, str) and v.startswith("postgres://"):
+            logger.warning(
+                "DATABASE_URL uses deprecated 'postgres://' scheme; replacing with 'postgresql://'."
+            )
             return v.replace("postgres://", "postgresql://", 1)
         return v
 

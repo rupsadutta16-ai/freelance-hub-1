@@ -1,32 +1,27 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-
-from app.core.config import settings
-from app.db.database import Base, engine
-
-
-from app.routers import (
-    auth,
-    users,
-    gig,
-    application,
-    contracts,
-    messages,
-    reviews,
-    notifications,  # ✅ ADDED
-)
-
-
-# Create tables
-Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI(
     title="UniGigs API",
     description="Student-focused freelance/gig marketplace API",
     version="1.0.0",
+    debug=False,
 )
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request, exc):
+    logger.exception(
+        "Unhandled exception: path=%s method=%s",
+        request.url.path,
+        request.method,
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Internal server error",
+            "path": request.url.path,
+        },
+    )
 
 
 # CORS
