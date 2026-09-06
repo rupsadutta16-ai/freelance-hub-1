@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../services/context/AuthContext';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
 import { gigService } from '../../services/gigs';
 import type { Gig } from '../../types';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
@@ -19,9 +20,9 @@ export function DashboardPage() {
       try {
         // Fetch stats - handle missing endpoint gracefully
         try {
-          const statsResponse = await fetch('/api/users/me/stats', {
+          const statsResponse = await fetch(`${API_BASE_URL}/users/me/stats`, {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
+              'Authorization': `Bearer ${getAuthToken()}`,
             },
           });
           if (statsResponse.ok) {

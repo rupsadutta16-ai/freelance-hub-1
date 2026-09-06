@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Mail, Lock, User } from 'lucide-react';
 
 export function SignupPage() {
   const [email, setEmail] = useState('');

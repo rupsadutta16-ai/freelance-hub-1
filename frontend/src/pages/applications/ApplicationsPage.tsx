@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
 
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -30,9 +31,9 @@ export function ApplicationsPage() {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const response = await fetch('/api/applications', {
+        const response = await fetch(`${API_BASE_URL}/applications`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('unigigs_token')}`,
+            Authorization: `Bearer ${getAuthToken()}`,
           },
         });
 

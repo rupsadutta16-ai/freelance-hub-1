@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { gigService } from '../../services/gigs';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
 import type { Gig } from '../../types';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -9,7 +10,6 @@ import { ArrowLeft, Clock, User, CheckCircle } from 'lucide-react';
 
 export function GigDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [gig, setGig] = useState<Gig | null>(null);
   const [loading, setLoading] = useState(true);
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -261,11 +261,11 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
     setLoading(true);
 
     try {
-      const response = await fetch('/api/applications', {
+      const response = await fetch(`${API_BASE_URL}/applications`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
+          'Authorization': `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify({
           gig_id: gigId,
