@@ -1,9 +1,14 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 
 from app.core.config import settings
 from app.db.database import Base, engine
+
+logger = logging.getLogger("unigigs")
 
 
 from app.routers import (
