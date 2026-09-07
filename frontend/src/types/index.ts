@@ -18,6 +18,7 @@ export interface Profile {
   average_rating: number;
   created_at: string;
   total_earnings?: number;
+  skills_summary?: string;
 }
 
 export interface Gig {
