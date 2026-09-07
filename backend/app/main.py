@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.db.database import Base, engine
+import app.models  # noqa: F401  – registers every table with Base.metadata
 
 logger = logging.getLogger("unigigs")
 
@@ -30,41 +31,29 @@ app = FastAPI(
 )
 
 
-@app.exception_handler(Exception)
-async def generic_exception_handler(request, exc):
-    logger.exception(
-        "Unhandled exception: path=%s method=%s",
-        request.url.path,
-        request.method,
-    )
-    return JSONResponse(
-        status_code=500,
-        content={
-            "detail": "Internal server error",
-            "path": request.url.path,
-        },
-    )
-
-
-# CORS
+# ── CORS (must be added FIRST so it wraps everything) ──────────────
 cors_origins = settings.cors_origins_list
 
 if "*" in cors_origins:
-    # Allow all origins explicitly.
     allow_origins = ["*"]
-    allow_origin_regex = None
 else:
     allow_origins = cors_origins
-    allow_origin_regex = None
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
-    allow_origin_regex=allow_origin_regex,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+
+# ── Create tables if they don't exist (safety net for deployments) ──
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    logger.exception("Failed to auto-create database tables on startup")
 
 
 # Include routers

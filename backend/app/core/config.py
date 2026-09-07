@@ -11,7 +11,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
-        case_sensitive=True
+        case_sensitive=False
     )
 
     # Database
@@ -27,13 +27,13 @@ class Settings(BaseSettings):
         return v
 
     # JWT
-    JWT_SECRET_KEY: str
+    JWT_SECRET_KEY: str = "unigigs-secret-jwt-key-production-fallback"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # CORS
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://frontend-rho-five-23.vercel.app"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://frontend-rho-five-23.vercel.app" 
 
     # Application
     APP_ENV: str = "development"

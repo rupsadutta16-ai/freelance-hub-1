@@ -371,21 +371,3 @@ def save_gig(
     return {
         "message": "Gig saved successfully"
     }
-
-# GET my gigs (for client to see their posted gigs)
-@router.get("/my-gigs", response_model=List[GigResponse])
-def get_my_gigs(
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    user_id = int(current_user["user_id"])
-    user = db.query(User).filter(User.id == user_id).first()
-    
-    if user.role.value == "client":
-        # Client sees their posted gigs
-        gigs = db.query(Gig).filter(Gig.client_id == user_id).all()
-    else:
-        # Student sees all open gigs
-        gigs = db.query(Gig).filter(Gig.status == GigStatus.OPEN).all()
-    
-    return [GigResponse.model_validate(gig) for gig in gigs]

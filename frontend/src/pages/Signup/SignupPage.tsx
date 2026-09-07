@@ -35,7 +35,7 @@ export function SignupPage() {
       await register(email, password, role);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Signup failed. Please try again.');
+      setError(err.message || err.response?.data?.detail || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }
