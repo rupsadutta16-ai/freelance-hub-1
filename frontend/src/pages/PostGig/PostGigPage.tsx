@@ -77,11 +77,19 @@ export function PostGigPage() {
         navigate('/dashboard');
       } else {
         const error = await response.json();
-        alert(error.detail || 'Failed to post gig');
+        let errorMsg = 'Failed to post gig';
+        if (typeof error.detail === 'string') {
+          errorMsg = error.detail;
+        } else if (Array.isArray(error.detail)) {
+          errorMsg = error.detail.map((e: any) => `${e.loc?.slice(1).join('.') || 'field'}: ${e.msg}`).join('\n');
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        alert(errorMsg);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error posting gig:', error);
-      alert('Failed to post gig. Please try again.');
+      alert(error.message || 'Failed to post gig. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -184,8 +184,10 @@ def get_my_gigs(
             detail="User not found"
         )
 
+    user_role = user.role.value if hasattr(user.role, "value") else str(user.role)
+
     # Client sees only their posted gigs
-    if user.role.value == "client":
+    if user_role == "client":
         gigs = db.query(Gig).filter(
             Gig.client_id == user_id
         ).order_by(
@@ -249,11 +251,21 @@ def create_gig(
             detail="User not found"
         )
 
+    user_role = user.role.value if hasattr(user.role, "value") else str(user.role)
+
     # Only clients can post gigs
-    if user.role.value != "client":
+    if user_role != "client":
         raise HTTPException(
             status_code=403,
             detail="Only clients can post gigs"
+        )
+
+    # Verify category exists
+    category = db.query(Category).filter(Category.id == gig_data.category_id).first()
+    if not category:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Category with ID {gig_data.category_id} does not exist. Please select a valid category."
         )
 
     # Create new gig
