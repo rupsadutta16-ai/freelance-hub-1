@@ -40,8 +40,17 @@ export interface Application {
   gig_id: number;
   freelancer_id: number;
   proposed_price: number;
+  delivery_days?: number;
+  cover_letter?: string;
+  portfolio_links?: string;
   status: 'pending' | 'accepted' | 'rejected' | 'withdrawn';
   created_at: string;
+  freelancer?: {
+    id: number;
+    email: string;
+    role: string;
+    profile?: Profile;
+  };
 }
 
 export interface Contract {

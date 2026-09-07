@@ -28,6 +28,9 @@ app = FastAPI(
     description="Student-focused freelance/gig marketplace API",
     version="1.0.0",
     debug=False,
+    swagger_ui_parameters={"syntaxHighlight": "monokai"},
+    swagger_url="/docs",
+    openapi_url="/openapi.json",
 )
 
 

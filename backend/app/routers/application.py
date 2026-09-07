@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 from datetime import datetime
 from app.db.database import get_db
@@ -11,6 +11,7 @@ from app.schemas.application import ApplicationCreate, ApplicationResponse
 from app.core.security import get_current_user
 
 router = APIRouter()
+
 
 
 @router.post("", response_model=ApplicationResponse)
@@ -60,14 +61,60 @@ def get_my_applications(current_user: dict = Depends(get_current_user), db: Sess
     return [ApplicationResponse.model_validate(a) for a in apps]
 
 
-@router.get("/gig/{gig_id}", response_model=List[ApplicationResponse])
+@router.get("/gig/{gig_id}")
 def get_gig_applications(gig_id: int, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     user_id = int(current_user["user_id"])
     gig = db.query(Gig).filter(Gig.id == gig_id).first()
     if not gig or gig.client_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
-    apps = db.query(Application).filter(Application.gig_id == gig_id).all()
-    return [ApplicationResponse.model_validate(a) for a in apps]
+    apps = (
+        db.query(Application)
+        .options(joinedload(Application.freelancer).joinedload(User.profile))
+        .filter(Application.gig_id == gig_id)
+        .order_by(Application.created_at.desc())
+        .all()
+    )
+
+    result = []
+    for a in apps:
+        freelancer_data = None
+        if a.freelancer:
+            profile_data = None
+            if a.freelancer.profile:
+                p = a.freelancer.profile
+                profile_data = {
+                    "id": p.id,
+                    "user_id": p.user_id,
+                    "full_name": p.full_name,
+                    "bio": p.bio,
+                    "university": p.university,
+                    "avatar_url": p.avatar_url,
+                    "availability": p.availability,
+                    "skills_summary": p.skills_summary,
+                    "completed_gigs_count": p.completed_gigs_count,
+                    "average_rating": p.average_rating,
+                }
+            freelancer_data = {
+                "id": a.freelancer.id,
+                "email": a.freelancer.email,
+                "role": a.freelancer.role.value if hasattr(a.freelancer.role, 'value') else a.freelancer.role,
+                "profile": profile_data,
+            }
+
+        result.append({
+            "id": a.id,
+            "gig_id": a.gig_id,
+            "freelancer_id": a.freelancer_id,
+            "proposed_price": a.proposed_price,
+            "delivery_days": a.delivery_days,
+            "cover_letter": a.cover_letter,
+            "portfolio_links": a.portfolio_links,
+            "status": a.status.value if hasattr(a.status, 'value') else a.status,
+            "created_at": a.created_at.isoformat(),
+            "freelancer": freelancer_data,
+        })
+
+    return result
 
 
 @router.post("/{application_id}/accept")
