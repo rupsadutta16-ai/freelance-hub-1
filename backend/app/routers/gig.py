@@ -10,8 +10,6 @@ from app.models.user import User
 from app.models.saved_gig import SavedGig
 from app.schemas.gig import GigCreate, GigResponse
 from app.core.security import get_current_user
-from typing import List
-from app.models.user import User
 
 router = APIRouter()
 
@@ -91,6 +89,22 @@ def get_categories(
 ):
     categories = db.query(Category).all()
 
+    if not categories:
+        # Auto-seed default categories if database is empty
+        default_categories = [
+            {"name": "Design", "description": "Graphic design, logos, UI/UX", "icon": "🎨"},
+            {"name": "Development", "description": "Web, mobile, software development", "icon": "💻"},
+            {"name": "Writing", "description": "Content writing, copywriting, editing", "icon": "✍️"},
+            {"name": "Video & Audio", "description": "Video editing, music, voiceovers", "icon": "🎬"},
+            {"name": "Marketing", "description": "Social media, SEO, digital marketing", "icon": "📈"},
+            {"name": "Data & Analytics", "description": "Data analysis, Excel, research", "icon": "📊"},
+        ]
+        for cat_data in default_categories:
+            cat = Category(**cat_data)
+            db.add(cat)
+        db.commit()
+        categories = db.query(Category).all()
+
     return [
         {
             "id": category.id,
@@ -117,6 +131,26 @@ def get_skills(
         )
 
     skills = query.all()
+
+    if not skills and not search:
+        default_skills = [
+            ("Logo Design", "Design"),
+            ("Web Design", "Design"),
+            ("Figma", "Design"),
+            ("React", "Development"),
+            ("Python", "Development"),
+            ("Node.js", "Development"),
+            ("Content Writing", "Writing"),
+            ("Copywriting", "Writing"),
+            ("Video Editing", "Video & Audio"),
+            ("Social Media Marketing", "Marketing"),
+            ("Data Analysis", "Data & Analytics"),
+        ]
+        for name, cat in default_skills:
+            s = Skill(name=name, category=cat)
+            db.add(s)
+        db.commit()
+        skills = query.all()
 
     return [
         {
