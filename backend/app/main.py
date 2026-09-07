@@ -1,4 +1,21 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+
+from app.core.config import settings
+from app.db.database import Base, engine
+
+
+from app.routers import (
+    auth,
+    users,
+    gig,
+    application,
+    contracts,
+    messages,
+    reviews,
+    notifications,  # ✅ ADDED
+)
 
 app = FastAPI(
     title="UniGigs API",
