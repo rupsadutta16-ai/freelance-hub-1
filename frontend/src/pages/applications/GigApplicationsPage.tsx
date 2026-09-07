@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { gigService } from '../../services/gigs';
 import { applicationService } from '../../services/applications';
 import type { Gig, Application } from '../../types';
@@ -50,13 +50,19 @@ export function GigApplicationsPage() {
     loadData();
   }, [gigId]);
 
+  const navigate = useNavigate();
+
   const handleAccept = async (appId: number) => {
     try {
       setActionLoadingId(appId);
-      await applicationService.acceptApplication(appId);
+      const result = await applicationService.acceptApplication(appId);
       setApplications((prev) =>
         prev.map((app) => (app.id === appId ? { ...app, status: 'accepted' } : app))
       );
+      // Redirect client to contracts page after accepting
+      if (result?.contract_id) {
+        navigate('/contracts');
+      }
     } catch (error) {
       console.error('Error accepting application:', error);
       alert('Failed to accept application.');

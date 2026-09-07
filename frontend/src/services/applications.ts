@@ -12,8 +12,8 @@ export const applicationService = {
     return response.data;
   },
 
-  async acceptApplication(applicationId: number): Promise<{ message: string }> {
-    const response = await api.post<{ message: string }>(`/applications/${applicationId}/accept`);
+  async acceptApplication(applicationId: number): Promise<{ message: string; contract_id?: number }> {
+    const response = await api.post<{ message: string; contract_id?: number }>(`/applications/${applicationId}/accept`);
     return response.data;
   },
 
